@@ -131,12 +131,14 @@ export function useTranscriptStream() {
     return INITIAL_SPEAKERS.map(s => ({ ...s, utteranceCount: counts[s.id] || 0 }));
   }, []);
 
-  const transcribeBlob = useCallback(async (audioBlob: Blob) => {
+  const transcribeBlob = useCallback(async (audioBlob: Blob | File) => {
     setState(prev => ({ ...prev, isProcessing: true, lastError: null }));
 
     try {
       const formData = new FormData();
-      const file = new File([audioBlob], `session-${Date.now()}.webm`, { type: audioBlob.type || 'audio/webm' });
+      const file = audioBlob instanceof File
+        ? audioBlob
+        : new File([audioBlob], `session-${Date.now()}.webm`, { type: audioBlob.type || 'audio/webm' });
       formData.append('audio', file);
 
       const response = await fetch(`${API_BASE_URL}/transcribe?pro_mode=true`, {
@@ -149,13 +151,13 @@ export function useTranscriptStream() {
       }
 
       const data: BackendTranscribeResponse = await response.json();
-      const utterances = mapUtterances(data.utterances || []);
+      const newUtterances = mapUtterances(data.utterances || []);
 
       setState(prev => ({
         ...prev,
-        utterances,
-        speakers: updateSpeakers(utterances),
-        stats: updateStats(utterances),
+        utterances: [...prev.utterances, ...newUtterances],
+        speakers: updateSpeakers([...prev.utterances, ...newUtterances]),
+        stats: updateStats([...prev.utterances, ...newUtterances]),
         contradiction: null,
         currentStreaming: null,
         isProcessing: false,
@@ -197,13 +199,9 @@ export function useTranscriptStream() {
           ...prev,
           isRecording: true,
           isProcessing: false,
-          utterances: [],
           contradiction: null,
           currentStreaming: null,
-          speakers: INITIAL_SPEAKERS.map(s => ({ ...s, utteranceCount: 0 })),
-          stats: { duration: '00:00:00', utterances: 0, avgConfidence: 0, flagged: 0, codeSwitches: 0, rulings: 0 },
           elapsed: 0,
-          sessionHash: '',
           lastError: null,
         }));
 
@@ -235,6 +233,10 @@ export function useTranscriptStream() {
     window.open(`${API_BASE_URL}/export`, '_blank', 'noopener,noreferrer');
   }, []);
 
+  const uploadAudioFile = useCallback(async (file: File) => {
+    await transcribeBlob(file);
+  }, [transcribeBlob]);
+
   const dismissContradiction = useCallback(() => {
     setState(prev => ({ ...prev, contradiction: null }));
   }, []);
@@ -251,5 +253,5 @@ export function useTranscriptStream() {
     };
   }, []);
 
-  return { ...state, startRecording, stopRecording, dismissContradiction, exportDocument };
+  return { ...state, startRecording, stopRecording, uploadAudioFile, dismissContradiction, exportDocument };
 }

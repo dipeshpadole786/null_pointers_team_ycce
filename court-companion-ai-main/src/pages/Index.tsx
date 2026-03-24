@@ -59,7 +59,9 @@ const Index = () => {
 
       <BottomBar
         isRecording={stream.isRecording}
+        isProcessing={stream.isProcessing}
         onToggleRecording={handleToggleRecording}
+        onUploadAudio={stream.uploadAudioFile}
       />
 
       <ExportModal

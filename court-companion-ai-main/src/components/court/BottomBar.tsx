@@ -3,12 +3,15 @@ import { Mic, Square } from 'lucide-react';
 
 interface BottomBarProps {
   isRecording: boolean;
+  isProcessing: boolean;
   onToggleRecording: () => void;
+  onUploadAudio: (file: File) => void;
 }
 
-export default function BottomBar({ isRecording, onToggleRecording }: BottomBarProps) {
+export default function BottomBar({ isRecording, isProcessing, onToggleRecording, onUploadAudio }: BottomBarProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animRef = useRef<number>();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
@@ -58,15 +61,35 @@ export default function BottomBar({ isRecording, onToggleRecording }: BottomBarP
     return () => { if (animRef.current) cancelAnimationFrame(animRef.current); };
   }, [draw]);
 
+  const handlePickAudio = useCallback(() => {
+    fileInputRef.current?.click();
+  }, []);
+
+  const handleFileChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      onUploadAudio(file);
+    }
+    event.target.value = '';
+  }, [onUploadAudio]);
+
   return (
     <div className="h-[80px] flex items-center px-4 gap-4 flex-shrink-0" style={{ background: 'hsl(var(--bg-primary))', borderTop: '1px solid hsl(var(--gold))' }}>
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="audio/*"
+        className="hidden"
+        onChange={handleFileChange}
+      />
+
       {/* Left: Tech info */}
       <div className="flex flex-col gap-0.5 w-[220px] flex-shrink-0">
         <span className="font-mono-court text-[10px]" style={{ color: 'hsl(var(--text-muted))' }}>
           🎙 MediaRecorder → ws://localhost:8000
         </span>
         <span className="font-mono-court text-[10px]" style={{ color: 'hsl(var(--gold))' }}>
-          ⚡ ~3s latency (whisper.cpp CPU)
+          {isProcessing ? '⏳ Processing audio...' : '⚡ ~3s latency (whisper.cpp CPU)'}
         </span>
       </div>
 
@@ -78,11 +101,13 @@ export default function BottomBar({ isRecording, onToggleRecording }: BottomBarP
       {/* Record button */}
       <button
         onClick={onToggleRecording}
+        disabled={isProcessing}
         className={`w-16 h-16 rounded-full flex items-center justify-center transition-all flex-shrink-0 ${isRecording ? 'animate-record-pulse' : ''}`}
         style={{
           background: isRecording ? 'hsl(var(--red-alert))' : 'transparent',
           border: `3px solid ${isRecording ? 'hsl(var(--gold))' : 'hsl(var(--gold))'}`,
           boxShadow: isRecording ? '0 0 20px hsl(var(--gold) / 0.3)' : 'none',
+          opacity: isProcessing ? 0.6 : 1,
         }}
       >
         {isRecording ? (
@@ -90,6 +115,15 @@ export default function BottomBar({ isRecording, onToggleRecording }: BottomBarP
         ) : (
           <Mic size={24} style={{ color: 'hsl(var(--gold))' }} />
         )}
+      </button>
+
+      <button
+        onClick={handlePickAudio}
+        disabled={isRecording || isProcessing}
+        className="btn-ghost-court text-[10px] py-2 px-3"
+        style={{ opacity: isRecording || isProcessing ? 0.5 : 1 }}
+      >
+        Upload Audio
       </button>
 
       {/* Right: Audio level */}
