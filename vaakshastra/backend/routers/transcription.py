@@ -30,7 +30,8 @@ async def transcribe(
     try:
         result = process_audio_file(tmp_path, pro_mode=pro_mode)
         session = get_session_manager()
-        session.set_session(result["utterances"])
+        combined = session.get_all() + result["utterances"]
+        session.set_session(combined)
         return result
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))

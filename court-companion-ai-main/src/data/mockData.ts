@@ -1,4 +1,4 @@
-export type SpeakerRole = 'JUDGE' | 'ADVOCATE_P' | 'ADVOCATE_D' | 'WITNESS' | 'CLERK';
+export type SpeakerRole = 'JUDGE' | 'ADVOCATE_P' | 'ADVOCATE_D' | 'WITNESS' | 'CLERK' | 'ACCUSED' | 'OTHER' | 'UNKNOWN';
 export type UtteranceType = 'ruling' | 'testimony' | 'objection' | 'procedural' | 'order' | 'evidence';
 
 export interface Utterance {
@@ -141,6 +141,10 @@ export const INITIAL_SPEAKERS: SpeakerProfile[] = [
   { id: 'SPEAKER_00', role: 'JUDGE', confidence: 95, utteranceCount: 0 },
   { id: 'SPEAKER_01', role: 'ADVOCATE_P', confidence: 91, utteranceCount: 0 },
   { id: 'SPEAKER_02', role: 'WITNESS', confidence: 87, utteranceCount: 0 },
+  { id: 'SPEAKER_03', role: 'CLERK', confidence: 84, utteranceCount: 0 },
+  { id: 'SPEAKER_04', role: 'ACCUSED', confidence: 82, utteranceCount: 0 },
+  { id: 'SPEAKER_05', role: 'OTHER', confidence: 80, utteranceCount: 0 },
+  { id: 'SPEAKER_06', role: 'UNKNOWN', confidence: 75, utteranceCount: 0 },
 ];
 
 export const INITIAL_CASE_META: CaseMetadata = {
@@ -158,6 +162,9 @@ export const ROLE_LABELS: Record<SpeakerRole, string> = {
   ADVOCATE_D: 'Advocate (D)',
   WITNESS: 'Witness',
   CLERK: 'Clerk',
+  ACCUSED: 'Accused',
+  OTHER: 'Other',
+  UNKNOWN: 'Unknown',
 };
 
 export const ROLE_BADGE_CLASS: Record<SpeakerRole, string> = {
@@ -166,6 +173,9 @@ export const ROLE_BADGE_CLASS: Record<SpeakerRole, string> = {
   ADVOCATE_D: 'badge-advocate-d',
   WITNESS: 'badge-witness',
   CLERK: 'badge-clerk',
+  ACCUSED: 'badge-advocate-d',
+  OTHER: 'badge-clerk',
+  UNKNOWN: 'badge-clerk',
 };
 
 export const ROLE_BORDER_CLASS: Record<SpeakerRole, string> = {
@@ -174,6 +184,9 @@ export const ROLE_BORDER_CLASS: Record<SpeakerRole, string> = {
   ADVOCATE_D: 'border-left-advocate-d',
   WITNESS: 'border-left-witness',
   CLERK: 'border-left-clerk',
+  ACCUSED: 'border-left-advocate-d',
+  OTHER: 'border-left-clerk',
+  UNKNOWN: 'border-left-clerk',
 };
 
 export const TYPE_PILL_CLASS: Record<UtteranceType, string> = {

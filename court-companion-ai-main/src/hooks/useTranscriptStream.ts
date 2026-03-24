@@ -18,6 +18,9 @@ interface StreamingState {
   stats: SessionStats;
   elapsed: number;
   sessionHash: string;
+  summaryText: string;
+  qaAnswer: string;
+  qaCitations: Array<{ timestamp: string; role: string; text: string }>;
   lastError: string | null;
 }
 
@@ -35,6 +38,15 @@ type BackendTranscribeResponse = {
   session_hash: string;
 };
 
+type BackendSummaryResponse = {
+  summary: string;
+};
+
+type BackendQAResponse = {
+  answer: string;
+  citations?: Array<{ timestamp: string; role: string; text: string }>;
+};
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
 
 const ROLE_TO_SPEAKER: Record<SpeakerRole, string> = {
@@ -43,6 +55,9 @@ const ROLE_TO_SPEAKER: Record<SpeakerRole, string> = {
   ADVOCATE_D: 'SPEAKER_01',
   WITNESS: 'SPEAKER_02',
   CLERK: 'SPEAKER_03',
+  ACCUSED: 'SPEAKER_04',
+  OTHER: 'SPEAKER_05',
+  UNKNOWN: 'SPEAKER_06',
 };
 
 function mapRole(role: string): SpeakerRole {
@@ -50,7 +65,10 @@ function mapRole(role: string): SpeakerRole {
   if (normalized === 'JUDGE') return 'JUDGE';
   if (normalized === 'ADVOCATE') return 'ADVOCATE_P';
   if (normalized === 'WITNESS') return 'WITNESS';
-  return 'CLERK';
+  if (normalized === 'CLERK') return 'CLERK';
+  if (normalized === 'ACCUSED' || normalized === 'CULPRIT') return 'ACCUSED';
+  if (normalized === 'OTHER') return 'OTHER';
+  return 'UNKNOWN';
 }
 
 function mapType(type: string): Utterance['type'] {
@@ -95,6 +113,9 @@ export function useTranscriptStream() {
     stats: { duration: '00:00:00', utterances: 0, avgConfidence: 0, flagged: 0, codeSwitches: 0, rulings: 0 },
     elapsed: 0,
     sessionHash: '',
+    summaryText: '',
+    qaAnswer: '',
+    qaCitations: [],
     lastError: null,
   });
 
@@ -237,6 +258,45 @@ export function useTranscriptStream() {
     await transcribeBlob(file);
   }, [transcribeBlob]);
 
+  const fetchSummary = useCallback(async () => {
+    try {
+      setState(prev => ({ ...prev, isProcessing: true, lastError: null }));
+      const response = await fetch(`${API_BASE_URL}/summary`);
+      if (!response.ok) {
+        throw new Error(`Summary failed with status ${response.status}`);
+      }
+      const data: BackendSummaryResponse = await response.json();
+      setState(prev => ({ ...prev, isProcessing: false, summaryText: data.summary || '' }));
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unable to generate summary';
+      setState(prev => ({ ...prev, isProcessing: false, lastError: message }));
+    }
+  }, []);
+
+  const askQuestion = useCallback(async (question: string) => {
+    try {
+      setState(prev => ({ ...prev, isProcessing: true, lastError: null }));
+      const response = await fetch(`${API_BASE_URL}/qa`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question }),
+      });
+      if (!response.ok) {
+        throw new Error(`Q&A failed with status ${response.status}`);
+      }
+      const data: BackendQAResponse = await response.json();
+      setState(prev => ({
+        ...prev,
+        isProcessing: false,
+        qaAnswer: data.answer || '',
+        qaCitations: data.citations || [],
+      }));
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unable to answer question';
+      setState(prev => ({ ...prev, isProcessing: false, lastError: message }));
+    }
+  }, []);
+
   const dismissContradiction = useCallback(() => {
     setState(prev => ({ ...prev, contradiction: null }));
   }, []);
@@ -253,5 +313,14 @@ export function useTranscriptStream() {
     };
   }, []);
 
-  return { ...state, startRecording, stopRecording, uploadAudioFile, dismissContradiction, exportDocument };
+  return {
+    ...state,
+    startRecording,
+    stopRecording,
+    uploadAudioFile,
+    fetchSummary,
+    askQuestion,
+    dismissContradiction,
+    exportDocument,
+  };
 }

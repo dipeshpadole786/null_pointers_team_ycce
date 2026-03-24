@@ -1,8 +1,13 @@
+import { useState } from 'react';
 import type { Utterance } from '@/data/mockData';
 
 interface RightPanelProps {
   utterances: Utterance[];
   onPreviewDocument: () => void;
+  onGenerateSummary: () => void;
+  summaryText: string;
+  onAskQuestion: (question: string) => void;
+  qaAnswer: string;
 }
 
 const QUICK_INSERTS = [
@@ -11,7 +16,15 @@ const QUICK_INSERTS = [
   'Proceedings End', 'Custom...',
 ];
 
-export default function RightPanel({ utterances, onPreviewDocument }: RightPanelProps) {
+export default function RightPanel({
+  utterances,
+  onPreviewDocument,
+  onGenerateSummary,
+  summaryText,
+  onAskQuestion,
+  qaAnswer,
+}: RightPanelProps) {
+  const [question, setQuestion] = useState('');
   const hasUtterances = utterances.length > 0;
 
   return (
@@ -59,6 +72,37 @@ export default function RightPanel({ utterances, onPreviewDocument }: RightPanel
         <button onClick={onPreviewDocument} disabled={!hasUtterances} className="btn-gold w-full mt-3 text-[10px] py-2">
           Preview Full Document
         </button>
+
+        <button onClick={onGenerateSummary} disabled={!hasUtterances} className="btn-ghost-court w-full mt-2 text-[10px] py-2">
+          Generate Summary
+        </button>
+
+        {summaryText && (
+          <div className="rounded p-3 mt-2" style={{ background: 'hsl(var(--bg-card))' }}>
+            <p className="text-[10px] font-bold uppercase tracking-[1px]" style={{ color: 'hsl(var(--gold))' }}>Summary</p>
+            <p className="text-[11px] whitespace-pre-wrap" style={{ color: 'hsl(var(--text-primary))' }}>{summaryText}</p>
+          </div>
+        )}
+
+        <div className="rounded p-3 mt-3" style={{ background: 'hsl(var(--bg-card))' }}>
+          <p className="text-[10px] font-bold uppercase tracking-[1px] mb-2" style={{ color: 'hsl(var(--gold))' }}>Ask On Record</p>
+          <textarea
+            className="input-court min-h-[70px]"
+            placeholder="Ask a question about the generated legal record..."
+            value={question}
+            onChange={e => setQuestion(e.target.value)}
+          />
+          <button
+            className="btn-ghost-court w-full mt-2 text-[10px] py-2"
+            disabled={!hasUtterances || !question.trim()}
+            onClick={() => onAskQuestion(question)}
+          >
+            Ask Question
+          </button>
+          {qaAnswer && (
+            <p className="text-[11px] mt-2" style={{ color: 'hsl(var(--text-primary))' }}>{qaAnswer}</p>
+          )}
+        </div>
       </div>
     </div>
   );

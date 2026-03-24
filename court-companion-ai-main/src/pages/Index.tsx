@@ -54,6 +54,10 @@ const Index = () => {
         <RightPanel
           utterances={stream.utterances}
           onPreviewDocument={() => setExportOpen(true)}
+          onGenerateSummary={stream.fetchSummary}
+          summaryText={stream.summaryText}
+          onAskQuestion={stream.askQuestion}
+          qaAnswer={stream.qaAnswer}
         />
       </div>
 

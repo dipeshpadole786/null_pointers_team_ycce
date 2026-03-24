@@ -1,10 +1,13 @@
 ﻿from pathlib import Path
 import sys
+from dotenv import load_dotenv
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
+load_dotenv(ROOT_DIR / ".env")
+load_dotenv(ROOT_DIR / "backend" / ".env")
 if str(ROOT_DIR) not in sys.path:
     sys.path.append(str(ROOT_DIR))
 

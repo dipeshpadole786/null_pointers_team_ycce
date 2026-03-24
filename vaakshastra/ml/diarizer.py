@@ -12,7 +12,7 @@ ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 load_dotenv(os.path.join(ROOT_DIR, ".env"))
 load_dotenv(os.path.join(ROOT_DIR, "backend", ".env"))
 
-ROLES = ["JUDGE", "ADVOCATE", "WITNESS", "CLERK", "UNKNOWN"]
+ROLES = ["JUDGE", "ADVOCATE", "WITNESS", "CLERK", "ACCUSED", "OTHER", "UNKNOWN"]
 TYPES = ["ORDER", "TESTIMONY", "OBJECTION", "QUESTION", "PROCEDURAL", "EVIDENCE", "STATEMENT"]
 
 
@@ -100,7 +100,15 @@ def _score_roles(
     previous_type: str | None,
 ) -> dict[str, float]:
     lower = f" {text.lower()} "
-    scores: dict[str, float] = {"JUDGE": 0.1, "ADVOCATE": 0.1, "WITNESS": 0.1, "CLERK": 0.1, "UNKNOWN": 0.05}
+    scores: dict[str, float] = {
+        "JUDGE": 0.1,
+        "ADVOCATE": 0.1,
+        "WITNESS": 0.1,
+        "CLERK": 0.1,
+        "ACCUSED": 0.1,
+        "OTHER": 0.08,
+        "UNKNOWN": 0.05,
+    }
 
     # Strong lexical courtroom cues
     if re.search(r"\b(order|adjourned|listed|pronounced|granted|rejected)\b", lower):
@@ -118,6 +126,14 @@ def _score_roles(
     if re.search(r"\b(witness|deponent|statement)\b", lower):
         scores["WITNESS"] += 0.5
 
+    if re.search(r"\b(i deny|i admit|i was not there|i am innocent|mujhe fasaya|maine nahi kiya|galat ilzam|accused)\b", lower):
+        scores["ACCUSED"] += 1.0
+    if re.search(r"\b(culprit|crime|weapon|motive|confession)\b", lower):
+        scores["ACCUSED"] += 0.35
+
+    if re.search(r"\b(public|spectator|police constable|interpreter|unknown person|bystander)\b", lower):
+        scores["OTHER"] += 0.9
+
     # Clerk/court staff markers
     if re.search(r"\b(clerk|court master|reader|nazir|stenographer)\b", lower):
         scores["CLERK"] += 1.0
@@ -131,6 +147,7 @@ def _score_roles(
         scores["ADVOCATE"] += 0.65
     if utterance_type == "TESTIMONY":
         scores["WITNESS"] += 0.7
+        scores["ACCUSED"] += 0.25
     if utterance_type == "EVIDENCE":
         scores["ADVOCATE"] += 0.35
         scores["CLERK"] += 0.2
@@ -141,20 +158,32 @@ def _score_roles(
         scores["ADVOCATE"] += 0.2
         scores["WITNESS"] += 0.1
         scores["CLERK"] += 0.1
+        scores["ACCUSED"] += 0.05
+        scores["OTHER"] += 0.05
     elif previous_role == "ADVOCATE":
         scores["ADVOCATE"] -= 0.1
         scores["WITNESS"] += 0.2
         scores["JUDGE"] += 0.1
         scores["CLERK"] += 0.05
+        scores["ACCUSED"] += 0.1
     elif previous_role == "WITNESS":
         scores["WITNESS"] -= 0.15
         scores["ADVOCATE"] += 0.25
         scores["JUDGE"] += 0.05
         scores["CLERK"] += 0.05
+        scores["ACCUSED"] += 0.1
     elif previous_role == "CLERK":
         scores["CLERK"] -= 0.1
         scores["JUDGE"] += 0.15
         scores["ADVOCATE"] += 0.1
+    elif previous_role == "ACCUSED":
+        scores["ACCUSED"] -= 0.1
+        scores["ADVOCATE"] += 0.15
+        scores["JUDGE"] += 0.1
+    elif previous_role == "OTHER":
+        scores["OTHER"] -= 0.05
+        scores["ADVOCATE"] += 0.1
+        scores["JUDGE"] += 0.1
 
     # Question -> likely answer transition boost
     if previous_type == "QUESTION" and utterance_type in {"STATEMENT", "TESTIMONY"}:
@@ -209,7 +238,7 @@ def _smooth_role_sequence(utterances: list[dict]) -> list[dict]:
             adjusted[idx]["speaker_confidence"] = max(0.55, float(adjusted[idx].get("speaker_confidence", 0.4)))
 
         # Question/objection utterances are rarely witness lines unless confidence is high.
-        if cur_type in {"QUESTION", "OBJECTION"} and cur_role in {"WITNESS", "CLERK"} and adjusted[idx].get("speaker_confidence", 0) < 0.75:
+        if cur_type in {"QUESTION", "OBJECTION"} and cur_role in {"WITNESS", "CLERK", "ACCUSED", "OTHER"} and adjusted[idx].get("speaker_confidence", 0) < 0.75:
             adjusted[idx]["role"] = "ADVOCATE"
             adjusted[idx]["speaker_confidence"] = 0.62
 
@@ -259,7 +288,7 @@ def _llm_refine_labels(utterances: list[dict]) -> list[dict]:
 
     prompt = (
         "You are assigning courtroom speaker roles and legal utterance types.\n"
-        "Valid roles: JUDGE, ADVOCATE, WITNESS, CLERK, UNKNOWN.\n"
+        "Valid roles: JUDGE, ADVOCATE, WITNESS, CLERK, ACCUSED, OTHER, UNKNOWN.\n"
         "Valid types: ORDER, TESTIMONY, OBJECTION, QUESTION, PROCEDURAL, EVIDENCE, STATEMENT.\n"
         "Input is chronological utterances from one hearing.\n"
         "Return ONLY a JSON array where each item is:\n"
