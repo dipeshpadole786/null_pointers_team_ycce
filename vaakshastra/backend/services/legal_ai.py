@@ -120,6 +120,9 @@ def answer_question_on_record(question: str, utterances: list[dict], docx_path: 
     if not question:
         return {"answer": "Please provide a question.", "citations": []}
 
+    if not utterances:
+        return {"answer": "No hearing record available. Please transcribe audio first.", "citations": []}
+
     q_tokens = set(_tokenize(question))
 
     scored: list[tuple[int, dict]] = []
@@ -131,7 +134,7 @@ def answer_question_on_record(question: str, utterances: list[dict], docx_path: 
             scored.append((score, u))
 
     scored.sort(key=lambda item: item[0], reverse=True)
-    top = [u for _, u in scored[:6]]
+    top = [u for _, u in scored[:8]]
 
     citations = [
         {
@@ -142,46 +145,60 @@ def answer_question_on_record(question: str, utterances: list[dict], docx_path: 
         for u in top
     ]
 
-    # If there are no direct token matches, try docx text fallback.
-    docx_text = _extract_docx_text(docx_path or "") if not top else ""
-
     client = _safe_client()
-    if client:
+    if client and utterances:
         try:
-            context = citations if citations else [{"docx_excerpt": docx_text[:5000]}]
+            # Build comprehensive context with all utterances or top matches
+            if citations:
+                context_text = "\n\n".join([
+                    f"[{c['role']}] {c['text']}"
+                    for c in citations
+                ])
+            else:
+                # If no token match, include all utterances for full context
+                context_text = "\n\n".join([
+                    f"[{u.get('role', 'UNKNOWN')}] {u.get('text', '')}"
+                    for u in utterances[:100]
+                ])
+
             prompt = (
-                "You are a legal QA assistant. Answer ONLY from provided hearing record context. "
-                "If evidence is insufficient, say so clearly. Keep answer concise and professional.\n\n"
-                f"QUESTION: {question}\n\nCONTEXT: {context}"
+                "You are a legal court hearing QA assistant with access to a complete hearing record. "
+                "Answer the user's question based ONLY on the provided hearing record. "
+                "Provide specific, direct answers referencing speakers and statements when available. "
+                "If the answer cannot be found in the record, state what information is available instead of refusing.\n\n"
+                f"QUESTION: {question}\n\n"
+                f"HEARING RECORD:\n{context_text}"
             )
             completion = client.chat.completions.create(
                 model="llama-3.1-8b-instant",
-                temperature=0.1,
+                temperature=0.2,
                 messages=[
-                    {"role": "system", "content": "Use only provided context."},
+                    {
+                        "role": "system",
+                        "content": "You have access to a complete hearing record. Answer questions directly from it."
+                    },
                     {"role": "user", "content": prompt},
                 ],
             )
             answer = (completion.choices[0].message.content or "").strip()
             if answer:
-                return {"answer": answer, "citations": citations}
-        except Exception:
+                return {"answer": answer, "citations": citations if citations else [{"text": "Full hearing record referenced"}]}
+        except Exception as e:
             pass
 
+    # Fallback: if LLM fails or unavailable, use best-effort search results
     if citations:
-        stitched = " ".join(c["text"] for c in citations[:3])
+        stitched = " ".join(c["text"] for c in citations[:4])
         return {
-            "answer": f"Based on the hearing record, relevant statements indicate: {stitched}",
+            "answer": f"From the hearing record: {stitched}",
             "citations": citations,
         }
 
-    if docx_text:
-        return {
-            "answer": "No direct matching statement found in indexed utterances. The generated DOCX contains relevant content; please ask a more specific legal question (person/date/section/order).",
-            "citations": [],
-        }
-
+    # Final fallback: at least tell user what we have
+    all_speakers = list(set([u.get("role", "UNKNOWN") for u in utterances]))
+    all_text = " ".join([u.get("text", "") for u in utterances[:50]])[:500]
+    
     return {
-        "answer": "Insufficient record context to answer this question.",
-        "citations": [],
+        "answer": f"Hearing record contains statements from: {', '.join(all_speakers)}. Record excerpt: {all_text}... Ask for specific details about speakers, statements, or orders.",
+        "citations": [{"text": f"Total record length: {len(utterances)} statements"}],
     }
