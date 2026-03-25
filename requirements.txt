@@ -1,0 +1,12 @@
+# Workspace dependency bootstrap
+#
+# 1) Install Python backend dependencies:
+#    pip install -r requirements.txt
+#
+# 2) Install frontend dependencies (Node.js/npm):
+#    cd court-companion-ai-main && npm install
+#    cd ../vaakshastra/frontend && npm install
+#
+# Note: npm packages cannot be installed through pip requirements files.
+
+-r vaakshastra/backend/requirements.txt

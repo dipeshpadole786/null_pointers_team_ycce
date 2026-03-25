@@ -28,7 +28,7 @@ const Index = () => {
   }, [stream]);
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden" style={{ background: 'hsl(var(--bg-primary))' }}>
+    <div className="h-dvh min-h-dvh flex flex-col overflow-hidden court-shell">
       <Navbar
         isRecording={stream.isRecording}
         elapsed={stream.elapsed}
@@ -37,8 +37,8 @@ const Index = () => {
         onNewSession={handleNewSession}
       />
 
-      {/* Main content below navbar */}
-      <div className="flex flex-1 overflow-hidden" style={{ marginTop: '52px' }}>
+      <div className="flex-1 min-h-0 p-3 md:p-4 lg:p-5">
+        <div className="court-layout h-full">
         <LeftPanel
           caseMeta={caseMeta}
           speakers={stream.speakers}
@@ -59,6 +59,7 @@ const Index = () => {
           onAskQuestion={stream.askQuestion}
           qaAnswer={stream.qaAnswer}
         />
+        </div>
       </div>
 
       <BottomBar

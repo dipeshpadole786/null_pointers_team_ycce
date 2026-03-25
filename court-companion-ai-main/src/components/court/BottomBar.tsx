@@ -74,7 +74,8 @@ export default function BottomBar({ isRecording, isProcessing, onToggleRecording
   }, [onUploadAudio]);
 
   return (
-    <div className="h-[80px] flex items-center px-4 gap-4 flex-shrink-0" style={{ background: 'hsl(var(--bg-primary))', borderTop: '1px solid hsl(var(--gold))' }}>
+    <div className="mx-3 mb-3 mt-2 md:mx-4 lg:mx-5 rounded-2xl border flex-shrink-0" style={{ background: 'hsl(var(--bg-card) / 0.88)', borderColor: 'hsl(var(--border-subtle))', boxShadow: '0 14px 32px hsl(var(--court-navy) / 0.07)' }}>
+      <div className="min-h-[86px] flex flex-wrap lg:flex-nowrap items-center px-3 py-2 md:px-4 gap-3 md:gap-4">
       <input
         ref={fileInputRef}
         type="file"
@@ -83,8 +84,7 @@ export default function BottomBar({ isRecording, isProcessing, onToggleRecording
         onChange={handleFileChange}
       />
 
-      {/* Left: Tech info */}
-      <div className="flex flex-col gap-0.5 w-[220px] flex-shrink-0">
+      <div className="flex flex-col gap-0.5 w-full lg:w-[260px] flex-shrink-0 order-2 lg:order-1">
         <span className="font-mono-court text-[10px]" style={{ color: 'hsl(var(--text-muted))' }}>
           🎙 MediaRecorder → ws://localhost:8000
         </span>
@@ -93,16 +93,14 @@ export default function BottomBar({ isRecording, isProcessing, onToggleRecording
         </span>
       </div>
 
-      {/* Waveform */}
-      <div className="flex-1 h-[50px] relative">
+      <div className="flex-1 min-w-[140px] w-full h-[50px] relative order-1 lg:order-2 rounded-xl px-2" style={{ background: 'hsl(var(--bg-light) / 0.7)' }}>
         <canvas ref={canvasRef} className="w-full h-full" />
       </div>
 
-      {/* Record button */}
       <button
         onClick={onToggleRecording}
         disabled={isProcessing}
-        className={`w-16 h-16 rounded-full flex items-center justify-center transition-all flex-shrink-0 ${isRecording ? 'animate-record-pulse' : ''}`}
+        className={`w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center transition-all flex-shrink-0 order-3 ${isRecording ? 'animate-record-pulse' : ''}`}
         style={{
           background: isRecording ? 'hsl(var(--red-alert))' : 'transparent',
           border: `3px solid ${isRecording ? 'hsl(var(--gold))' : 'hsl(var(--gold))'}`,
@@ -120,14 +118,13 @@ export default function BottomBar({ isRecording, isProcessing, onToggleRecording
       <button
         onClick={handlePickAudio}
         disabled={isRecording || isProcessing}
-        className="btn-ghost-court text-[10px] py-2 px-3"
+        className="btn-ghost-court text-[10px] py-2 px-3 order-3"
         style={{ opacity: isRecording || isProcessing ? 0.5 : 1 }}
       >
         Upload Audio
       </button>
 
-      {/* Right: Audio level */}
-      <div className="flex flex-col items-center gap-1 w-[80px] flex-shrink-0">
+      <div className="hidden sm:flex flex-col items-center gap-1 w-[84px] flex-shrink-0 order-4">
         <div className="flex items-end gap-1 h-[30px]">
           {[0.3, 0.6, 0.9, 0.7, 0.4].map((h, i) => (
             <div
@@ -144,6 +141,7 @@ export default function BottomBar({ isRecording, isProcessing, onToggleRecording
         <span className="text-[9px] font-label" style={{ color: isRecording ? 'hsl(var(--court-green))' : 'hsl(var(--text-muted))' }}>
           {isRecording ? 'Noise OK' : 'Idle'}
         </span>
+      </div>
       </div>
     </div>
   );

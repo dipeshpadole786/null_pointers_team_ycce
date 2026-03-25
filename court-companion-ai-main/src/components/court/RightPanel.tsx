@@ -28,9 +28,9 @@ export default function RightPanel({
   const hasUtterances = utterances.length > 0;
 
   return (
-    <div className="w-[280px] flex-shrink-0 h-full overflow-y-auto scrollbar-court" style={{ background: 'hsl(var(--bg-panel))', borderLeft: '1px solid hsl(var(--border-subtle))' }}>
-      {/* Legal Intelligence */}
-      <div className="p-4">
+    <aside className="w-full xl:w-[320px] h-full min-h-[250px] overflow-y-auto scrollbar-court rounded-2xl border" style={{ background: 'hsl(var(--bg-panel) / 0.65)', borderColor: 'hsl(var(--border-subtle))', boxShadow: '0 8px 18px hsl(var(--court-navy) / 0.04)' }}>
+      <div className="p-4 space-y-4">
+        <section className="rounded-xl p-3" style={{ background: 'hsl(var(--bg-card) / 0.72)' }}>
         <span className="label-gold block mb-3">Legal Intelligence</span>
         <div className="space-y-3">
           <EntityGroup icon="📌" title="PERSONS" items={hasUtterances ? ['Ramesh Kumar (Accused)', 'Adv. Priya Sharma (Petitioner)', 'Adv. Mehta (Respondent)'] : []} />
@@ -39,28 +39,22 @@ export default function RightPanel({
           <EntityGroup icon="📍" title="LOCATIONS" items={hasUtterances ? ['Andheri West, Mumbai', 'Sahar Police Station'] : []} />
           <EntityGroup icon="📁" title="EXHIBITS MARKED" items={hasUtterances ? ['Exhibit A — CCTV footage', 'Exhibit B — Medical report'] : []} />
         </div>
-      </div>
+        </section>
 
-      <div style={{ borderTop: '1px solid hsl(var(--border-subtle))' }} />
-
-      {/* Quick Inserts */}
-      <div className="p-4">
+        <section className="rounded-xl p-3" style={{ background: 'hsl(var(--bg-card) / 0.72)' }}>
         <span className="label-gold block mb-3">Quick Insert</span>
         <div className="grid grid-cols-2 gap-1.5">
           {QUICK_INSERTS.map(label => (
-            <button key={label} className="rounded px-2 py-1.5 text-[10px] font-label font-bold text-left transition-colors" style={{ background: 'hsl(var(--bg-card))', color: 'hsl(var(--text-muted))' }}>
+            <button key={label} className="rounded-lg px-2 py-1.5 text-[10px] font-label font-semibold text-left transition-colors" style={{ background: 'hsl(var(--bg-light) / 0.8)', color: 'hsl(var(--text-muted))' }}>
               {label}
             </button>
           ))}
         </div>
-      </div>
+        </section>
 
-      <div style={{ borderTop: '1px solid hsl(var(--border-subtle))' }} />
-
-      {/* Document Structure */}
-      <div className="p-4">
+        <section className="rounded-xl p-3" style={{ background: 'hsl(var(--bg-card) / 0.72)' }}>
         <span className="label-gold block mb-3">Document Structure</span>
-        <div className="space-y-1 text-[12px] font-mono-court" style={{ color: 'hsl(var(--text-muted))' }}>
+        <div className="space-y-1 text-[12px] font-mono-court rounded-xl p-3" style={{ color: 'hsl(var(--text-muted))', background: 'hsl(var(--bg-light) / 0.7)' }}>
           <p style={{ color: 'hsl(var(--text-primary))' }}>📄 ORDER SHEET — CC/234/2024</p>
           <p className="pl-4">{hasUtterances ? '├─ Case Header ✓' : '├─ Case Header ⏳'}</p>
           <p className="pl-4">{hasUtterances ? '├─ Appearances ✓' : '├─ Appearances ⏳'}</p>
@@ -78,13 +72,13 @@ export default function RightPanel({
         </button>
 
         {summaryText && (
-          <div className="rounded p-3 mt-2" style={{ background: 'hsl(var(--bg-card))' }}>
+          <div className="rounded-xl p-3 mt-2" style={{ background: 'hsl(var(--bg-light) / 0.78)' }}>
             <p className="text-[10px] font-bold uppercase tracking-[1px]" style={{ color: 'hsl(var(--gold))' }}>Summary</p>
             <p className="text-[11px] whitespace-pre-wrap" style={{ color: 'hsl(var(--text-primary))' }}>{summaryText}</p>
           </div>
         )}
 
-        <div className="rounded p-3 mt-3" style={{ background: 'hsl(var(--bg-card))' }}>
+        <div className="rounded-xl p-3 mt-3" style={{ background: 'hsl(var(--bg-light) / 0.78)' }}>
           <p className="text-[10px] font-bold uppercase tracking-[1px] mb-2" style={{ color: 'hsl(var(--gold))' }}>Ask On Record</p>
           <textarea
             className="input-court min-h-[70px]"
@@ -103,8 +97,9 @@ export default function RightPanel({
             <p className="text-[11px] mt-2" style={{ color: 'hsl(var(--text-primary))' }}>{qaAnswer}</p>
           )}
         </div>
+        </section>
       </div>
-    </div>
+    </aside>
   );
 }
 

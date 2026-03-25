@@ -12,8 +12,6 @@ interface LeftPanelProps {
 
 const SESSION_TYPES = ['FIR Recording', 'Bail Hearing', 'Deposition', 'Cross-Examination', 'Final Arguments', 'Order Pronouncement'];
 const LANGUAGES = ['Hindi', 'English', 'Hindi-English (Code-Switch)', 'Marathi', 'Tamil', 'Telugu'];
-const ROLES: SpeakerRole[] = ['JUDGE', 'ADVOCATE_P', 'ADVOCATE_D', 'WITNESS', 'CLERK'];
-
 const BORDER_COLORS: Record<SpeakerRole, string> = {
   JUDGE: 'hsl(var(--court-navy))',
   ADVOCATE_P: 'hsl(var(--court-green))',
@@ -26,9 +24,9 @@ export default function LeftPanel({ caseMeta, speakers, stats, onCaseMetaChange 
   const [caseOpen, setCaseOpen] = useState(true);
 
   return (
-    <div className="w-[260px] flex-shrink-0 h-full overflow-y-auto scrollbar-court" style={{ background: 'hsl(var(--bg-panel))', borderRight: '1px solid hsl(var(--border-subtle))' }}>
-      {/* Case Details */}
-      <div className="p-4">
+    <aside className="w-full xl:w-[280px] h-full min-h-[250px] overflow-y-auto scrollbar-court rounded-2xl border" style={{ background: 'hsl(var(--bg-panel) / 0.65)', borderColor: 'hsl(var(--border-subtle))', boxShadow: '0 8px 18px hsl(var(--court-navy) / 0.04)' }}>
+      <div className="p-4 space-y-4">
+        <section className="rounded-xl p-3" style={{ background: 'hsl(var(--bg-card) / 0.72)' }}>
         <button onClick={() => setCaseOpen(!caseOpen)} className="flex items-center gap-2 w-full mb-3">
           {caseOpen ? <ChevronDown size={12} style={{ color: 'hsl(var(--gold))' }} /> : <ChevronRight size={12} style={{ color: 'hsl(var(--gold))' }} />}
           <span className="label-gold">Case Details</span>
@@ -45,21 +43,18 @@ export default function LeftPanel({ caseMeta, speakers, stats, onCaseMetaChange 
             <select className="input-court" value={caseMeta.languageMode} onChange={e => onCaseMetaChange({ ...caseMeta, languageMode: e.target.value })}>
               {LANGUAGES.map(l => <option key={l} value={l}>{l}</option>)}
             </select>
-            <p className="flex items-center gap-1 text-[11px]" style={{ color: 'hsl(var(--text-muted))' }}>
+            <p className="flex items-center gap-1 text-[11px] rounded-lg px-2.5 py-2" style={{ color: 'hsl(var(--text-muted))', background: 'hsl(var(--bg-light) / 0.75)' }}>
               <Lock size={10} /> All data stored locally — SQLite session DB
             </p>
           </div>
         )}
-      </div>
+        </section>
 
-      <div style={{ borderTop: '1px solid hsl(var(--border-subtle))' }} />
-
-      {/* Detected Speakers */}
-      <div className="p-4">
+        <section className="rounded-xl p-3" style={{ background: 'hsl(var(--bg-card) / 0.72)' }}>
         <span className="label-gold block mb-3">Detected Speakers</span>
         <div className="space-y-2">
           {speakers.map(s => (
-            <div key={s.id} className="rounded-md p-3" style={{ background: 'hsl(var(--bg-card))', borderLeft: `3px solid ${BORDER_COLORS[s.role]}` }}>
+            <div key={s.id} className="rounded-xl p-3" style={{ background: 'hsl(var(--bg-light) / 0.7)', borderLeft: `3px solid ${BORDER_COLORS[s.role]}` }}>
               <div className="flex items-center gap-2 mb-1.5">
                 <span className="text-[11px]">🎙</span>
                 <span className="font-mono-court text-[11px] font-bold" style={{ color: 'hsl(var(--text-primary))' }}>{s.id}</span>
@@ -80,12 +75,9 @@ export default function LeftPanel({ caseMeta, speakers, stats, onCaseMetaChange 
           ))}
         </div>
         <p className="text-[10px] mt-2" style={{ color: 'hsl(var(--text-muted))' }}>✎ Stenographer can reassign roles at any time</p>
-      </div>
+        </section>
 
-      <div style={{ borderTop: '1px solid hsl(var(--border-subtle))' }} />
-
-      {/* Session Stats */}
-      <div className="p-4">
+        <section className="rounded-xl p-3" style={{ background: 'hsl(var(--bg-card) / 0.72)' }}>
         <span className="label-gold block mb-3">Session Stats</span>
         <div className="grid grid-cols-2 gap-2">
           {[
@@ -96,13 +88,14 @@ export default function LeftPanel({ caseMeta, speakers, stats, onCaseMetaChange 
             ['🔄', 'Code-switch', stats.codeSwitches],
             ['📋', 'Rulings', stats.rulings],
           ].map(([icon, label, value]) => (
-            <div key={label as string} className="rounded p-2" style={{ background: 'hsl(var(--bg-card))' }}>
+            <div key={label as string} className="rounded-lg p-2.5" style={{ background: 'hsl(var(--bg-light) / 0.75)' }}>
               <div className="text-[10px]" style={{ color: 'hsl(var(--text-muted))' }}>{icon} {label}</div>
               <div className="font-mono-court text-[13px] font-bold" style={{ color: 'hsl(var(--text-primary))' }}>{value}</div>
             </div>
           ))}
         </div>
+        </section>
       </div>
-    </div>
+    </aside>
   );
 }

@@ -18,14 +18,13 @@ export default function ExportModal({ isOpen, onClose, utterances, caseMeta, sta
   const hash = sessionHash || 'Not generated yet';
 
   return (
-    <div className="fixed inset-0 z-[100] flex" style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)' }}>
+    <div className="fixed inset-0 z-[100] flex flex-col xl:flex-row" style={{ background: 'rgba(16, 18, 24, 0.72)', backdropFilter: 'blur(8px)' }}>
       <button onClick={onClose} className="absolute top-4 right-4 p-2 rounded-full transition-colors z-10" style={{ color: 'hsl(var(--text-muted))' }}>
         <X size={24} />
       </button>
 
-      {/* Left: Document Preview */}
-      <div className="flex-1 overflow-y-auto p-8 flex justify-center">
-        <div className="w-full max-w-[600px] rounded-lg p-10 shadow-2xl" style={{ background: 'hsl(var(--bg-light))', color: 'hsl(var(--text-dark))' }}>
+      <div className="flex-1 overflow-y-auto p-4 md:p-8 flex justify-center">
+        <div className="w-full max-w-[700px] rounded-2xl p-6 md:p-10 shadow-2xl" style={{ background: 'hsl(var(--bg-light))', color: 'hsl(var(--text-dark))' }}>
           <div className="text-center mb-6 font-document">
             <p className="text-[14px] font-bold uppercase tracking-[2px]">In The {caseMeta.courtName}</p>
             <p className="text-[12px] uppercase tracking-[1px] mt-1">Mumbai</p>
@@ -87,11 +86,9 @@ export default function ExportModal({ isOpen, onClose, utterances, caseMeta, sta
         </div>
       </div>
 
-      {/* Right: Export Options */}
-      <div className="w-[400px] overflow-y-auto p-8" style={{ background: 'hsl(var(--bg-panel))', borderLeft: '1px solid hsl(var(--border-subtle))' }}>
-        <h2 className="font-display text-[26px] font-bold mb-6" style={{ color: 'hsl(var(--gold))' }}>Generate Document</h2>
+      <div className="w-full xl:w-[420px] overflow-y-auto p-5 md:p-8" style={{ background: 'hsl(var(--bg-panel))', borderLeft: '1px solid hsl(var(--border-subtle))' }}>
+        <h2 className="font-display text-[28px] font-bold mb-6" style={{ color: 'hsl(var(--gold))' }}>Generate Document</h2>
 
-        {/* Stats */}
         <div className="grid grid-cols-2 gap-3 mb-6">
           {[
             ['Duration', stats.duration],
@@ -99,14 +96,13 @@ export default function ExportModal({ isOpen, onClose, utterances, caseMeta, sta
             ['Accuracy', `${stats.avgConfidence}%`],
             ['Sections', stats.rulings],
           ].map(([label, val]) => (
-            <div key={label as string} className="rounded p-3" style={{ background: 'hsl(var(--bg-card))' }}>
+            <div key={label as string} className="rounded-xl p-3" style={{ background: 'hsl(var(--bg-card))' }}>
               <div className="text-[10px] font-label uppercase tracking-[1px]" style={{ color: 'hsl(var(--text-muted))' }}>{label}</div>
               <div className="font-mono-court text-[16px] font-bold" style={{ color: 'hsl(var(--text-primary))' }}>{val}</div>
             </div>
           ))}
         </div>
 
-        {/* Format options */}
         <div className="mb-6">
           <span className="label-gold block mb-2">Format</span>
           <div className="space-y-2">
@@ -119,7 +115,6 @@ export default function ExportModal({ isOpen, onClose, utterances, caseMeta, sta
           </div>
         </div>
 
-        {/* Checkboxes */}
         <div className="mb-6">
           <span className="label-gold block mb-2">Options</span>
           <div className="space-y-2">
@@ -138,8 +133,7 @@ export default function ExportModal({ isOpen, onClose, utterances, caseMeta, sta
           </div>
         </div>
 
-        {/* Session Hash */}
-        <div className="rounded p-3 mb-6" style={{ background: 'hsl(var(--bg-card))', border: '1px solid hsl(var(--border-subtle))' }}>
+        <div className="rounded-xl p-3 mb-6" style={{ background: 'hsl(var(--bg-card))', border: '1px solid hsl(var(--border-subtle))' }}>
           <span className="label-gold block mb-1">Session Hash</span>
           <p className="font-mono-court text-[10px] break-all" style={{ color: 'hsl(var(--text-muted))' }}>sha256: {hash}</p>
           <p className="text-[10px] mt-1" style={{ color: 'hsl(var(--text-muted))' }}>Generated: {new Date().toISOString()} | Entries: {utterances.length} | Immutable</p>

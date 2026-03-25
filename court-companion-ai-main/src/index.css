@@ -1,27 +1,29 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Spectral:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --bg-primary: 30 14% 5%;
-    --bg-panel: 33 12% 9%;
-    --bg-card: 33 16% 12%;
-    --bg-light: 40 30% 94%;
-    --gold: 42 55% 53%;
-    --gold-dark: 36 57% 42%;
-    --gold-glow: 42 55% 53%;
-    --court-green: 147 40% 40%;
-    --court-orange: 28 63% 47%;
-    --court-purple: 265 27% 51%;
-    --court-navy: 217 52% 36%;
-    --court-grey: 215 14% 34%;
-    --red-alert: 6 63% 46%;
-    --text-primary: 36 30% 91%;
-    --text-muted: 33 10% 49%;
-    --text-dark: 30 20% 9%;
-    --border-subtle: 33 15% 16%;
-    --border-gold: 42 55% 53%;
+    --bg-primary: 33 52% 96%;
+    --bg-panel: 32 36% 92%;
+    --bg-card: 0 0% 100%;
+    --bg-light: 36 52% 98%;
+    --gold: 27 81% 42%;
+    --gold-dark: 21 78% 34%;
+    --gold-glow: 30 95% 52%;
+    --court-green: 153 52% 34%;
+    --court-orange: 18 77% 46%;
+    --court-purple: 252 35% 46%;
+    --court-navy: 216 63% 32%;
+    --court-grey: 215 12% 38%;
+    --red-alert: 0 72% 46%;
+    --text-primary: 220 29% 14%;
+    --text-muted: 220 13% 38%;
+    --text-dark: 220 29% 14%;
+    --border-subtle: 26 18% 80%;
+    --border-gold: 27 81% 42%;
 
     /* Map to shadcn tokens */
     --background: var(--bg-primary);
@@ -60,70 +62,95 @@
   * {
     @apply border-border;
   }
+  html,
+  body,
+  #root {
+    min-height: 100%;
+  }
   body {
     @apply bg-background text-foreground;
-    font-family: 'Lato', sans-serif;
+    font-family: 'Manrope', sans-serif;
+    background-image:
+      radial-gradient(circle at 15% -10%, hsl(var(--gold) / 0.15), transparent 32%),
+      radial-gradient(circle at 100% 0%, hsl(var(--court-navy) / 0.12), transparent 30%),
+      linear-gradient(180deg, hsl(34 65% 98%) 0%, hsl(var(--bg-primary)) 35%, hsl(33 58% 94%) 100%);
+    background-attachment: fixed;
   }
 }
 
 @layer components {
   .font-display {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Spectral', serif;
   }
   .font-mono-court {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
   }
   .font-label {
-    font-family: 'Lato', sans-serif;
+    font-family: 'Manrope', sans-serif;
   }
   .font-document {
-    font-family: 'Lora', serif;
+    font-family: 'Spectral', serif;
+  }
+
+  .court-shell {
+    background: linear-gradient(180deg, hsl(34 52% 97%), hsl(31 26% 93%));
+  }
+
+  .court-layout {
+    @apply grid gap-4 md:gap-5;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  @media (min-width: 1280px) {
+    .court-layout {
+      grid-template-columns: 280px minmax(0, 1fr) 320px;
+    }
   }
 
   .label-gold {
-    @apply font-label text-[11px] uppercase tracking-[2px];
-    color: hsl(var(--gold));
+    @apply font-label text-[11px] uppercase tracking-[1.2px] font-bold;
+    color: hsl(var(--gold-dark));
   }
 
   .input-court {
-    @apply w-full rounded-md px-3 py-2 text-sm transition-colors;
-    background: hsl(var(--bg-primary));
+    @apply w-full rounded-lg px-3 py-2.5 text-sm transition-colors;
+    background: hsl(var(--bg-light));
     color: hsl(var(--text-primary));
-    border: 1px solid hsl(var(--border-subtle));
+    border: 1px solid hsl(var(--border-subtle) / 0.75);
   }
   .input-court:focus {
     outline: none;
     border-color: hsl(var(--gold));
-    box-shadow: 0 0 0 1px hsl(var(--gold) / 0.3);
+    box-shadow: 0 0 0 3px hsl(var(--gold) / 0.15);
   }
 
   .badge-speaker {
-    @apply inline-flex items-center rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-[1.5px];
+    @apply inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-[1.5px];
   }
   .badge-judge {
-    background: hsl(var(--court-navy) / 0.2);
+    background: hsl(var(--court-navy) / 0.12);
     color: hsl(var(--court-navy));
-    border: 1px solid hsl(var(--court-navy) / 0.3);
+    border: 1px solid hsl(var(--court-navy) / 0.24);
   }
   .badge-advocate-p {
-    background: hsl(var(--court-green) / 0.2);
+    background: hsl(var(--court-green) / 0.12);
     color: hsl(var(--court-green));
-    border: 1px solid hsl(var(--court-green) / 0.3);
+    border: 1px solid hsl(var(--court-green) / 0.24);
   }
   .badge-advocate-d {
-    background: hsl(var(--court-orange) / 0.2);
+    background: hsl(var(--court-orange) / 0.12);
     color: hsl(var(--court-orange));
-    border: 1px solid hsl(var(--court-orange) / 0.3);
+    border: 1px solid hsl(var(--court-orange) / 0.24);
   }
   .badge-witness {
-    background: hsl(var(--court-purple) / 0.2);
+    background: hsl(var(--court-purple) / 0.12);
     color: hsl(var(--court-purple));
-    border: 1px solid hsl(var(--court-purple) / 0.3);
+    border: 1px solid hsl(var(--court-purple) / 0.24);
   }
   .badge-clerk {
-    background: hsl(var(--court-grey) / 0.2);
+    background: hsl(var(--court-grey) / 0.12);
     color: hsl(var(--court-grey));
-    border: 1px solid hsl(var(--court-grey) / 0.3);
+    border: 1px solid hsl(var(--court-grey) / 0.24);
   }
 
   .pill-ruling {
@@ -152,12 +179,14 @@
   }
 
   .btn-gold {
-    @apply inline-flex items-center justify-center rounded-md px-5 py-2.5 font-bold uppercase tracking-[2px] text-[12px] transition-all;
-    background: hsl(var(--gold));
-    color: hsl(var(--bg-primary));
+    @apply inline-flex items-center justify-center rounded-lg px-5 py-2.5 font-semibold uppercase tracking-[1px] text-[12px] transition-all;
+    background: linear-gradient(135deg, hsl(var(--gold)) 0%, hsl(var(--gold-dark)) 100%);
+    color: hsl(var(--bg-light));
+    box-shadow: 0 8px 20px hsl(var(--gold) / 0.2);
   }
   .btn-gold:hover {
-    background: hsl(var(--gold-dark));
+    transform: translateY(-1px);
+    box-shadow: 0 10px 24px hsl(var(--gold) / 0.28);
   }
   .btn-gold:active {
     transform: scale(0.97);
@@ -168,21 +197,22 @@
   }
 
   .btn-ghost-court {
-    @apply inline-flex items-center justify-center rounded-md px-4 py-2 text-[12px] font-bold uppercase tracking-[2px] transition-all;
-    background: transparent;
-    border: 1px solid hsl(var(--border-subtle));
+    @apply inline-flex items-center justify-center rounded-lg px-4 py-2 text-[12px] font-semibold uppercase tracking-[0.8px] transition-all;
+    background: hsl(var(--bg-light) / 0.7);
+    border: 1px solid hsl(var(--border-subtle) / 0.7);
     color: hsl(var(--text-muted));
   }
   .btn-ghost-court:hover {
     border-color: hsl(var(--gold));
     color: hsl(var(--gold));
+    background: hsl(var(--gold) / 0.08);
   }
 
-  .border-left-judge { border-left: 3px solid hsl(var(--court-navy)); }
-  .border-left-advocate-p { border-left: 3px solid hsl(var(--court-green)); }
-  .border-left-advocate-d { border-left: 3px solid hsl(var(--court-orange)); }
-  .border-left-witness { border-left: 3px solid hsl(var(--court-purple)); }
-  .border-left-clerk { border-left: 3px solid hsl(var(--court-grey)); }
+  .border-left-judge { border-left: 4px solid hsl(var(--court-navy)); }
+  .border-left-advocate-p { border-left: 4px solid hsl(var(--court-green)); }
+  .border-left-advocate-d { border-left: 4px solid hsl(var(--court-orange)); }
+  .border-left-witness { border-left: 4px solid hsl(var(--court-purple)); }
+  .border-left-clerk { border-left: 4px solid hsl(var(--court-grey)); }
 }
 
 @layer utilities {
@@ -190,14 +220,14 @@
     width: 6px;
   }
   .scrollbar-court::-webkit-scrollbar-track {
-    background: hsl(var(--bg-primary));
+    background: hsl(var(--bg-panel) / 0.35);
   }
   .scrollbar-court::-webkit-scrollbar-thumb {
     background: hsl(var(--border-subtle));
     border-radius: 3px;
   }
   .scrollbar-court::-webkit-scrollbar-thumb:hover {
-    background: hsl(var(--gold) / 0.4);
+    background: hsl(var(--gold) / 0.5);
   }
 }
 
