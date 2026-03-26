@@ -31,7 +31,7 @@ Indian district courts still use longhand transcription, causing delays and erro
 
 ## Tech Stack Used
 
-### Frontend (court-companion-ai-main)
+### Web Frontend (court-companion-ai-main)
 
 - React 18
 - TypeScript
@@ -39,6 +39,15 @@ Indian district courts still use longhand transcription, causing delays and erro
 - Tailwind CSS
 - shadcn/ui + Radix UI
 - Browser MediaRecorder API
+
+### Mobile Frontend (vaakshastra-mobile-expo)
+
+- Expo SDK 54
+- React 19
+- React Native 0.81
+- expo-av (recording)
+- expo-document-picker (audio upload)
+- expo-constants, expo-linking
 
 ### Backend and AI Pipeline (vaakshastra)
 
@@ -64,7 +73,7 @@ cd D:\null\null_pointers_team_ycce\vaakshastra
 
 Backend Docs: http://127.0.0.1:8000/docs
 
-### 2) Start Frontend
+### 2) Start Web Frontend
 
 ```powershell
 cd D:\null\null_pointers_team_ycce\court-companion-ai-main
@@ -74,7 +83,23 @@ npm run dev
 
 Frontend URL: Vite prints the active URL (commonly http://127.0.0.1:5173 or next available port).
 
-### 3) Environment Variables
+### 3) Start Mobile App (Expo)
+
+```powershell
+cd D:\null\null_pointers_team_ycce\vaakshastra-mobile-expo
+npm install
+npx expo start --lan -c
+```
+
+Scan the QR code from Expo Go.
+
+Mobile app note:
+
+- This mobile application is based on the web version workflow and uses the same backend APIs.
+- Do not use localhost/127.0.0.1 from a physical phone.
+- Use your laptop LAN IP, example: http://192.168.1.23:8000
+
+### 4) Environment Variables
 
 Backend `.env` (`vaakshastra/.env` or `vaakshastra/backend/.env`):
 
@@ -106,3 +131,9 @@ VITE_API_BASE_URL=http://127.0.0.1:8000
 
 ## One-Line Project Feature
 AI court transcription assistant that converts legal audio into structured, speaker-tagged, exportable legal documents with summaries and Q&A.
+
+## Repository Modules
+
+- court-companion-ai-main: Web application (React + TypeScript + Vite)
+- vaakshastra: FastAPI backend and ML pipeline
+- vaakshastra-mobile-expo: Expo React Native mobile client built on the same backend workflow as the web app
